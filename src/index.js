@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import RegForm from './Form'
+import LoginForm from './Form'
 import * as serviceWorker from './serviceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -13,7 +13,7 @@ import {
   const routing=(
     <BrowserRouter>
     <Switch>
-        <Route path="/"  component={RegForm}/>
+        <Route path="/"  component={LoginForm}/>
     </Switch>
     </BrowserRouter>
   )

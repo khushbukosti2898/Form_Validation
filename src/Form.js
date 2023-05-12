@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 import {
@@ -6,364 +6,114 @@ import {
   FormGroup, Label, Input,
 } from 'reactstrap';
 
-class RegForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fname: '',
-      mname: '',
-      lname: '',
+const LoginForm = () => {
+  const [state, setState] = useState({
+    form: {
       email: '',
       pwd: '',
-      mobile: '',
-      gender: '',
-      city: '',
-      occupation: '',
-      hobbies: [],
-      error: {
-        fname: '',
-        mname: '',
-        lname: '',
-        email: '',
-        pwd: '',
-        mobile: '',
-        gender: '',
-        city: '',
-        occupation: '',
-        hobbies: '',
-      }
+    },
+    error: {
+      email: '',
+      pwd: '',
+    },
+    isLoginSuccess: false
+  });
 
-    }
+  const handleChange = (e) => {
+    let { name, value } = e.target;
+    setState((state) => ({ ...state, form: { ...state.form, [name]: value } }));
   }
 
-  handleChangeCheck = (e) => {
-    let { hobbies, error } = this.state;
-    let { value, checked } = e.target;
-    let index;
-    if (checked) {
-      hobbies.push(value);
-    }
-    else {
-      index = hobbies.indexOf(value)
-      hobbies.splice(index, 1)
-    }
-    this.setState({ hobbies },
-      () => { this.validateCheckField(hobbies, value) });
-  }
-
-  validateCheckField = (name, value) => {
-    let { error } = this.state;
-    if (name.length == 0) error.hobbies = "Select atleast one hobby"
-    else error.hobbies = "";
-    this.setState({ error })
-  }
-
-  handleChange = (e) => {
-    let { name, value } = e.target
-    this.setState({ [name]: value },
-      () => { this.validateField(name, value) });
-
-  }
-  validateField(fieldName, value) {
-    let { error } = this.state;
+  const validateField = (fieldName, value) => {
+    let { error } = state;
 
     switch (fieldName) {
-      case 'fname':
-        if (value == '')
-          error.fname = "First name is required"
-        break;
-
-      case 'lname':
-        error.lname = (value === '') ? "Last name is required" : ''
-        break;
-
       case 'email':
-        if (value == '')
+        if (value === '')
           error.email = "Email is required"
         else
           error.email = value.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i) ? '' : 'Email is invalid';
         break;
 
       case 'pwd':
-        if (value == '')
+        if (value === '')
           error.pwd = "Password is required"
         else
-          error.pwd = value.match(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/i) ? '' : ' Email Invalid';
+          error.pwd = value.match(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/i) ? '' : ' Password is invalid';
         break;
-
-      case 'mobile':
-        if (value == '')
-          error.mobile = "Mobile is required"
-        else
-          error.mobile = value.match(/^\d{10}$/) ? '' : 'Mobile is invalid';
-        break;
-
-      case 'occupation':
-        if (value == '')
-          error.occupation = "Occupation is required"
-        else
-          error.occupation = '';
-        break;
-
-      case 'city':
-        if (value == '')
-          error.city = "Select city"
-        else
-          error.city = '';
-        break;
-
-      case 'gender':
-        if (value == "")
-          error.gender = "Select gender"
-        else
-          error.gender = '';
-        break;
-
 
       default:
         break;
     }
-    this.setState({ error });
+    setState((state) => ({ ...state, error }));
   }
 
+  console.log(state)
 
-  handleSubmit = (e) => {
-    /* let { fname, mname, lname, email, pwd, mobile, gender, city, occupation, hobbies } = this.state
-    const { error } = this.state
-    if (fname == '' && lname == '' && email == '' && pwd == '' && mobile == '' && city == '' && hobbies == ''
-      && occupation == '' && gender == '') {
-      Object.keys(error).map((key) => {
-        error[key] = "This Field Is Required"
+  const handleSubmit = (e) => {
+    let { error } = state;
+    for (var key in error) {
+      if (!key && error.hasOwnProperty(key)) {
+        validateField(key, error[key])
+      }
+
+      Object.entries(state.form).map(([key, value]) => {
+        validateField(key, value)
       })
-      this.setState({ error: error }) */
-      let { error } = this.state;
-        // console.log(error)
-        for (var key in error) {
-            if (error.hasOwnProperty(key)) {
-                this.validateField(key, error[key])
-            }
-        }
-    
 
+      if (Object.values(state.error).filter((err) => err).length === 0) {
+        setState((state) => ({ ...state, isLoginSuccess: true }))
+      }
+    }
   }
 
-  render() {
-    let { error } = this.state;
-    return (<div>
-      <Container className="App">
-        <center>
-          <h1>FORM</h1>
-          <Form className="form" >
-            <Col>
-              <FormGroup>
-                <Label>First Name</Label>
-                <Label className="star">*</Label>
-                <Input
-                  type="text"
-                  name="fname"
-                  id="fname"
-                  placeholder="Firstname"
-                  onBlur={this.handleChange}
-                  onChange={this.handleChange}
-                />
-                {error.fname && (
-                  <span className="error">{error.fname}</span>
-                )}
-              </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-                <Label>Middle Name</Label>
-                <Input
-                  type="text"
-                  name="mname"
-                  id="manme"
-                  placeholder="Middlename"
-                  onBlur={this.handleChange}
-                  onChange={this.handleChange}
-                />
-              </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-                <Label>Last Name</Label>
-                <Label className="star">*</Label>
-                <Input
-                  type="text"
-                  name="lname"
-                  id="lname"
-                  placeholder="Lastname"
-                  onBlur={this.handleChange}
-                  onChange={this.handleChange}
-                />
-                {error.lname && (
-                  <span className="error">{error.lname}</span>
-                )}
-              </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-                <Label>Email</Label>
-                <Label className="star">*</Label>
-                <Input
-                  type="text"
-                  name="email"
-                  id="email"
-                  placeholder="myemail@email.com"
-                  onBlur={this.handleChange}
-                  onChange={this.handleChange}
-                />
-                {error.email && (
-                  <span className="error">{error.email}</span>
-                )}
-              </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-                <Label>Password</Label>
-                <Label className="star">*</Label>
-                <Input
-                  type="password"
-                  name="pwd"
-                  placeholder="********"
-                  onBlur={this.handleChange}
-                  onChange={this.handleChange}
-                />
-                {error.pwd && (
-                  <span className="error">{error.pwd}</span>
-                )}
-              </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-                <Label>Mobile</Label>
-                <Label className="star">*</Label>
-                <Input
-                  type="number"
-                  name="mobile"
-                  id="mobile"
-                  onBlur={this.handleChange}
-                  onChange={this.handleChange}
-                />
-                {error.mobile && (
-                  <span className="error">{error.mobile}</span>
-                )}
-              </FormGroup>
-            </Col>
-
-            <Label>Gender</Label>
-            <Label className="star">*</Label>
-            <Col>
-              <Input
-                type="radio"
-                name="gender"
-                checked={this.state.gender === 'male'}
-                value="male"
-                onChange={this.handleChange} />
-              <Label>Male
-            </Label>
-            </Col>
-            <Col>
-              <Input
-                type="radio"
-                checked={this.state.gender === 'female'}
-                name="gender"
-                value="female"
-                onChange={this.handleChange} />
-              <Label>Female
-            </Label><br />
-              {error.gender && (
-                <span className="error">{error.gender}</span>
-              )}
-            </Col>
-            <Label>Hobbies
-            </Label>
-            <Label className="star">*</Label>
-            <Col>
-              <Input
-                type="checkbox"
-                name="hobbies"
-                value="reading"
-                onChange={this.handleChangeCheck}
-              />
-              <Label>Reading
-            </Label>
-            </Col>
-            <Col>
-              <Input
-                type="checkbox"
-                name="hobbies"
-                value="swimming"
-                onChange={this.handleChangeCheck}
-              />
-              <Label>Swimming
-            </Label>
-            </Col>
-            <Col>
-              <Input
-                type="checkbox"
-                name="hobbies"
-                value="cooking"
-                onChange={this.handleChangeCheck}
-              />
-              <Label>Cooking
-            </Label>
-            </Col>
-            {error.hobbies && (
-              <span className="error">{error.hobbies}</span>
-            )}
-
-
-            <Col>
-              <FormGroup>
-                <Label>City</Label>
-                <Label className="star">*</Label><br></br>
-                <select name="city" onChange={this.handleChange} >
-                  <option value="select">select</option>
-                  <option value="ahmedabad">Ahmedabad</option>
-                  <option value="mumbai">Mumbai</option>
-                  <option value="delhi">Delhi</option>
-                </select><br />
-                {error.city && (
-                  <span className="error">{error.city}</span>
-                )}
-              </FormGroup>
-            </Col>
-
-            <Col>
-              <Label>Occupation</Label>
+  return (<div>
+    <Container className="App">
+      {state.isLoginSuccess ? "Success Login" : <center>
+        <h1>Login</h1>
+        <Form className="form" >
+          <Col>
+            <FormGroup>
+              <Label>Email</Label>
               <Label className="star">*</Label>
-            </Col>
-            <Col>
               <Input
-                type="checkbox"
-                name="occupation"
-                value="student"
-                checked={this.state.occupation === 'student'}
-                onChange={this.handleChange} />
-              <Label>Student
-            </Label>
-            </Col>
-            <Col>
+                type="text"
+                data-cy="loginEmail"
+                name="email"
+                id="email"
+                placeholder="myemail@email.com"
+                onBlur={handleChange}
+                onChange={handleChange}
+              />
+              {state.error.email && (
+                <span className="error">{state.error.email}</span>
+              )}
+            </FormGroup>
+          </Col>
+          <Col>
+            <FormGroup>
+              <Label>Password</Label>
+              <Label className="star">*</Label>
               <Input
-                type="checkbox"
-                name="occupation"
-                value="employee"
-                checked={this.state.occupation === 'employee'}
-                onChange={this.handleChange} />
-              <Label>Employee
-            </Label>
-            </Col>
-            {error.occupation && (
-              <span className="error">{error.occupation}</span>
-            )}
-            <Input type="button" value="submit" onClick={this.handleSubmit} ></Input>
-          </Form>
-        </center>
-      </Container>
-    </div>
+                type="password"
+                data-cy="loginPassword"
+                name="pwd"
+                placeholder="********"
+                onBlur={handleChange}
+                onChange={handleChange}
+              />
+              {state.error.pwd && (
+                <span className="error">{state.error.pwd}</span>
+              )}
+            </FormGroup>
+          </Col>
+          <Input type="button" value="submit" onClick={handleSubmit} data-cy="loginButton" ></Input>
+        </Form>
+      </center>}
+    </Container>
+  </div>
 
-    );
-  }
+  );
 }
-export default RegForm;
+
+export default LoginForm;
